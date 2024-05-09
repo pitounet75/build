@@ -1,0 +1,151 @@
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts b/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts
+index 15b9bc280706..5b98ffa7ab2c 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts
+@@ -15,6 +15,18 @@ / {
+ 
+ 	aliases {
+ 		serial0 = &uart_AO;
++		serial1 = &uart_AO_B;
++		serial2 = &uart_A;
++		serial3 = &uart_B;
++		serial4 = &uart_C;
++		i2c0 = &i2c0;
++		i2c1 = &i2c1;
++		i2c2 = &i2c2;
++		i2c3 = &i2c3;
++		i2c4 = &i2c_AO;
++		spi0 = &spicc0;
++		spi1 = &spicc1;
++		spi2 = &spifc;
+ 	};
+ 
+ 	chosen {
+@@ -60,7 +72,15 @@ sdio_pwrseq: sdio-pwrseq {
+ 		clock-names = "ext_clock";
+ 	};
+ 
+-	ao_5v: regulator-ao-5v {
++	typec2_vbus: regulator-typec2_vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "TYPEC2_VBUS";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		vin-supply = <&ao_5v>;
++	};
++
++	ao_5v: regulator-ao_5v {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "AO_5V";
+ 		regulator-min-microvolt = <5000000>;
+@@ -68,7 +88,7 @@ ao_5v: regulator-ao-5v {
+ 		regulator-always-on;
+ 	};
+ 
+-	vcc_1v8: regulator-vcc-1v8 {
++	vcc_1v8: regulator-vcc_1v8 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "VCC_1V8";
+ 		regulator-min-microvolt = <1800000>;
+@@ -77,7 +97,7 @@ vcc_1v8: regulator-vcc-1v8 {
+ 		regulator-always-on;
+ 	};
+ 
+-	vcc_3v3: regulator-vcc-3v3 {
++	vcc_3v3: regulator-vcc_3v3 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "VCC_3V3";
+ 		regulator-min-microvolt = <3300000>;
+@@ -86,7 +106,7 @@ vcc_3v3: regulator-vcc-3v3 {
+ 		regulator-always-on;
+ 	};
+ 
+-	hdmi_pw: regulator-hdmi-pw {
++	hdmi_pw: regulator-hdmi_pw {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "HDMI_PW";
+ 		regulator-min-microvolt = <5000000>;
+@@ -95,7 +115,7 @@ hdmi_pw: regulator-hdmi-pw {
+ 		regulator-always-on;
+ 	};
+ 
+-	vddao_1v8: regulator-vddao-1v8 {
++	vddao_1v8: regulator-vddao_1v8 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "VDDAO_1V8";
+ 		regulator-min-microvolt = <1800000>;
+@@ -104,7 +124,7 @@ vddao_1v8: regulator-vddao-1v8 {
+ 		regulator-always-on;
+ 	};
+ 
+-	vddao_3v3: regulator-vddao-3v3 {
++	vddao_3v3: regulator-vddao_3v3 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "VDDAO_3V3";
+ 		regulator-min-microvolt = <3300000>;
+@@ -190,6 +210,17 @@ wifi32k: wifi32k {
+ 	};
+ };
+ 
++&ao_pinctrl {
++	/* Ensure the TYPE C controller irq pin is not driven by the SoC */
++	fusb302_irq_pins: fusb302_irq {
++		mux {
++			groups = "GPIOAO_5";
++			function = "gpio_aobus";
++			bias-pull-up;
++			output-disable;
++		};
++	};
++};
+ &arb {
+ 	status = "okay";
+ };
+@@ -277,6 +308,25 @@ &ir {
+ 	pinctrl-names = "default";
+ };
+ 
++&i2c3 {
++	pinctrl-0 = <&i2c3_sda_a_pins>, <&i2c3_sck_a_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	fusb302@22 {
++		compatible = "fcs,fusb302";
++		reg = <0x22>;
++
++		pinctrl-0 = <&fusb302_irq_pins>;
++		pinctrl-names = "default";
++		interrupt-parent = <&gpio_intc>;
++		interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
++
++		vbus-supply = <&typec2_vbus>;
++
++		status = "okay";
++	};
++};
+ &pwm_AO_cd {
+ 	pinctrl-0 = <&pwm_ao_d_e_pins>;
+ 	pinctrl-names = "default";
+@@ -309,7 +359,7 @@ &sd_emmc_a {
+ 
+ 	bus-width = <4>;
+ 	cap-sd-highspeed;
+-	sd-uhs-sdr50;
++	cap-mmc-highspeed;
+ 	max-frequency = <100000000>;
+ 
+ 	non-removable;
+@@ -401,3 +451,12 @@ &uart_AO {
+ &usb {
+ 	status = "okay";
+ };
++
++&usb2_phy0 {
++	phy-supply = <&typec2_vbus>;
++};
++
++&usb3_pcie_phy {
++	phy-supply = <&typec2_vbus>;
++};
++
