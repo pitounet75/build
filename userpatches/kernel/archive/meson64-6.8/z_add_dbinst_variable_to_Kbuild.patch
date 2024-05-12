@@ -1,0 +1,17 @@
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 2f331879816b..7778cc97a4e0 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -113,6 +113,12 @@ endef
+ # $(Q)$(MAKE) $(build)=dir
+ build := -f $(srctree)/scripts/Makefile.build obj
+ 
++###
++# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.dtbinst obj=
++# Usage:
++# $(Q)$(MAKE) $(dtbinst)=dir
++dtbinst := -f $(srctree)/scripts/Makefile.dtbinst obj
++
+ ###
+ # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.clean obj=
+ # Usage:
