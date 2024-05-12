@@ -41,7 +41,6 @@ CONST_CONFIG_YAML_FILE: str = '0000.patching_config.yaml'
 SRC = armbian_utils.get_from_env_or_bomb("SRC")
 PATCH_TYPE = armbian_utils.get_from_env_or_bomb("PATCH_TYPE")
 PATCH_DIRS_TO_APPLY = armbian_utils.parse_env_for_tokens("PATCH_DIRS_TO_APPLY")
-print("PATCH_DIRS_TO_APPLY =" + str(PATCH_DIRS_TO_APPLY))
 APPLY_PATCHES = armbian_utils.get_from_env("APPLY_PATCHES")
 PATCHES_TO_GIT = armbian_utils.get_from_env("PATCHES_TO_GIT")
 REWRITE_PATCHES = armbian_utils.get_from_env("REWRITE_PATCHES")
@@ -67,7 +66,6 @@ GIT_WORK_DIR = armbian_utils.get_from_env("GIT_WORK_DIR")
 BOARD = armbian_utils.get_from_env("BOARD")
 TARGET = armbian_utils.get_from_env("TARGET")
 USERPATCHES_PATH = armbian_utils.get_from_env("USERPATCHES_PATH")
-print("USERPATCHES_PATH =" + str(USERPATCHES_PATH))
 
 # The exit exception, if any.
 exit_with_exception: "Exception | None" = None
@@ -76,15 +74,18 @@ exit_with_exception: "Exception | None" = None
 CONST_PATCH_ROOT_DIRS = []
 
 for patch_dir_to_apply in PATCH_DIRS_TO_APPLY:
+
 	# regular patchset
 	CONST_PATCH_ROOT_DIRS.append(
 		patching_utils.PatchRootDir(f"{SRC}/patch/{PATCH_TYPE}/{patch_dir_to_apply}", "core", PATCH_TYPE, SRC))
-
+		
+	#user patches
 	if USERPATCHES_PATH is not None:
 		CONST_PATCH_ROOT_DIRS.append(
 			patching_utils.PatchRootDir(
 				f"{USERPATCHES_PATH}/{PATCH_TYPE}/{patch_dir_to_apply}", "user", PATCH_TYPE,
 				USERPATCHES_PATH))
+
 
 
 
@@ -166,7 +167,6 @@ for one_dir in ALL_DIRS:
 
 ALL_DIR_PATCH_FILES_BY_NAME: dict[(str, patching_utils.PatchFileInDir)] = {}
 for one_patch_file in ALL_DIR_PATCH_FILES:
-
 	ALL_DIR_PATCH_FILES_BY_NAME[one_patch_file.file_name] = one_patch_file
 
 # sort the dict by the key (file_name, sans dir...)
