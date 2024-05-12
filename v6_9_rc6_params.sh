@@ -1,0 +1,1 @@
+export EXTRAWIFI=no
